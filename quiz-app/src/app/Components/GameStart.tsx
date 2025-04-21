@@ -11,7 +11,7 @@ const GameStart = ({GameCondition , setGameCondition}) => {
         <h1 className='text-4xl font-bold mb-7'>General Quiz</h1>
         <p className='text-3xl font-bold'> Are you ready? Click the button below to start ! </p>
 
-        <button className='bg-blue-600 w-28 h-10 mt-4 rounded-3xl' onClick={handleCondtion}>
+        <button className='bg-blue-600 w-28 h-10 mt-4 rounded-3xl cursor-pointer' onClick={handleCondtion}>
            Start 
            
         </button>

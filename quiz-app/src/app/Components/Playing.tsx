@@ -1,12 +1,8 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect, useState } from "react";
 
-const Playing = ({
-  GameCondition,
-  setGameCondition,
-  gameScore,
-  setGameScore,
-}) => {
-  const [selectedOption, setSelectedOption] = React.useState(null);
+const Playing = ({  setGameCondition, setGameScore }) => {
+  const [selectedOption, setSelectedOption] = useState(null);
+
   const initialState = {
     time: 1,
     questionNumber: 0,
@@ -16,31 +12,13 @@ const Playing = ({
     correctAns: "",
     allowedToNext: false,
   };
-  const handleScore = (clicked) => {
-    if (selectedOption !== null) return;
-    setSelectedOption(clicked);
 
-    dispatch({ type: "nextqn" });
-
-    if (clicked === state.correctAns) {
-      dispatch({ type: "SetScore" });
-    }
-    setGameScore(state.score + 1);
-  };
-
-  const quizRed = (state, action) => {
+  const quizRed = (state: { time: number; questionNumber: number; score: number; }, action: { type: any; payload: { effectQuest: any; effectOpt: any; correctAns: any; }; }) => {
     switch (action.type) {
       case "Time":
-        return {
-          ...state,
-          time: state.time + 1,
-        };
+        return { ...state, time: state.time + 1 };
       case "QuestionNumberSet":
-        return {
-          ...state,
-          questionNumber: state.questionNumber + 1,
-          allowedToNext: false,
-        };
+        return { ...state, questionNumber: state.questionNumber + 1, allowedToNext: false };
       case "SetQuestion":
         return {
           ...state,
@@ -49,19 +27,21 @@ const Playing = ({
           correctAns: action.payload.correctAns,
         };
       case "SetScore":
-        return {
-          ...state,
-          score: state.score + 1,
-        };
+        return { ...state, score: state.score + 1 };
       case "nextqn":
-        return {
-          ...state,
-          allowedToNext: true,
-        };
+        return { ...state, allowedToNext: true };
+      default:
+        return state;
     }
   };
 
-  function shuffleArray(array) {
+  const [state, dispatch] = useReducer(quizRed, initialState);
+
+  useEffect(() => {
+    setGameScore(state.score); 
+  }, [state.score]);
+
+  function shuffleArray(array: any[]) {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -70,24 +50,17 @@ const Playing = ({
     return arr;
   }
 
-  const [state, dispatch] = React.useReducer(quizRed, initialState);
-
   useEffect(() => {
-    fetch(
-      "https://opentdb.com/api.php?amount=2&category=9&difficulty=easy&type=multiple"
-    )
+    fetch("https://opentdb.com/api.php?amount=1&category=9&difficulty=easy&type=multiple")
       .then((res) => res.json())
       .then((data) => {
-        // console.log(data);
-        let opt = [
+        const opt = [
           data.results[0].correct_answer,
           ...data.results[0].incorrect_answers,
         ];
         const shuffledOptions = shuffleArray(opt);
-        console.log(opt);
-        console.log(data.results[0].correct_answer);
-
-        let Quest = data.results[0].question;
+        const Quest = data.results[0].question;
+        console.log(data.results[0].correct_answer)
 
         dispatch({
           type: "SetQuestion",
@@ -99,6 +72,16 @@ const Playing = ({
         });
       });
   }, [state.questionNumber]);
+
+  const handleScore = (clicked: React.SetStateAction<null>) => {
+    if (selectedOption !== null) return;
+    setSelectedOption(clicked);
+    dispatch({ type: "nextqn" });
+
+    if (clicked === state.correctAns) {
+      dispatch({ type: "SetScore" });
+    }
+  };
 
   const handleClick = () => {
     setSelectedOption(null);
@@ -120,13 +103,14 @@ const Playing = ({
     <div className="h-screen flex justify-center items-center">
       <div className="text-center p-8 bg-amber-50 w-[500px] rounded-xl shadow-lg">
         <h1 className="text-4xl font-bold mb-4">General Quiz</h1>
-        <p className="text-xl"> {state.time}s</p>
-        <div className="question mt-3   ">
-          <p className="text-3xl ">{state.effectQuest}</p>
+        <p className="text-xl">{state.time}s</p>
+        <div className="question mt-3">
+          <p className="text-3xl" dangerouslySetInnerHTML={{ __html: state.effectQuest }} />
         </div>
         <div className="options flex flex-col gap-5 items-start p-7">
-          {state.effectOpt.map((option, index) => (
+          {state.effectOpt.map((option: any, index: React.Key | null | undefined) => (
             <button
+              key={index}
               className={`rounded-2xl w-full h-10 text-white text-2xl ${
                 selectedOption
                   ? option === state.correctAns
@@ -135,29 +119,22 @@ const Playing = ({
                     ? "bg-red-500"
                     : "bg-gray-400"
                   : "bg-gray-400"
-              }
-            transition-colors duration-400 ease-in-out
-
-            cursor-pointer
-            
-            `}
+              } transition-colors duration-400 ease-in-out cursor-pointer`}
               onClick={() => handleScore(option)}
               disabled={selectedOption != null}
-            >
-              {option}
-            </button>
+              dangerouslySetInnerHTML={{ __html: option }}
+            />
           ))}
         </div>
 
         <div className="btn">
-          {" "}
           <button
-            className=" bg-blue-600  w-26  h-10 rounded cursor-pointer "
+            className="bg-blue-600 w-26 h-10 rounded cursor-pointer"
             onClick={handleClick}
-            disabled={state.allowedToNext == false}
+            disabled={!state.allowedToNext}
           >
             Next
-          </button>{" "}
+          </button>
         </div>
       </div>
     </div>
