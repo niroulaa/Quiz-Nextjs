@@ -51,7 +51,9 @@ const Playing = ({  setGameCondition, setGameScore }) => {
   }
 
   useEffect(() => {
-    fetch("https://opentdb.com/api.php?amount=1&category=9&difficulty=easy&type=multiple")
+
+    const timer = setTimeout(()=>{
+      fetch("https://opentdb.com/api.php?amount=1&category=9&difficulty=easy&type=multiple")
       .then((res) => res.json())
       .then((data) => {
         const opt = [
@@ -71,6 +73,8 @@ const Playing = ({  setGameCondition, setGameScore }) => {
           },
         });
       });
+    },1500)
+  
   }, [state.questionNumber]);
 
   const handleScore = (clicked: React.SetStateAction<null>) => {
@@ -91,7 +95,7 @@ const Playing = ({  setGameCondition, setGameScore }) => {
   useEffect(() => {
     const seconds = setInterval(() => {
       dispatch({ type: "Time" });
-      if (state.time >= 20) {
+      if (state.time >= 60) {
         setGameCondition("over");
       }
     }, 1000);
