@@ -80,22 +80,50 @@ const Playing = ({  setGameCondition, setGameScore }) => {
   const handleScore = (clicked: React.SetStateAction<null>) => {
     if (selectedOption !== null) return;
     setSelectedOption(clicked);
-    dispatch({ type: "nextqn" });
+    dispatch({
+      type: "nextqn",
+      payload: {
+        effectQuest: undefined,
+        effectOpt: undefined,
+        correctAns: undefined
+      }
+    });
 
     if (clicked === state.correctAns) {
-      dispatch({ type: "SetScore" });
+      dispatch({
+        type: "SetScore",
+        payload: {
+          effectQuest: undefined,
+          effectOpt: undefined,
+          correctAns: undefined
+        }
+      });
     }
   };
 
   const handleClick = () => {
     setSelectedOption(null);
-    dispatch({ type: "QuestionNumberSet" });
+    dispatch({
+      type: "QuestionNumberSet",
+      payload: {
+        effectQuest: undefined,
+        effectOpt: undefined,
+        correctAns: undefined
+      }
+    });
   };
 
   useEffect(() => {
     const seconds = setInterval(() => {
-      dispatch({ type: "Time" });
-      if (state.time >= 60) {
+      dispatch({
+        type: "Time",
+        payload: {
+          effectQuest: undefined,
+          effectOpt: undefined,
+          correctAns: undefined
+        }
+      });
+      if (state.time >= 20) {
         setGameCondition("over");
       }
     }, 1000);
